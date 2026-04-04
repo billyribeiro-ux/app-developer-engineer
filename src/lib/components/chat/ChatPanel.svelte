@@ -4,9 +4,11 @@
   import ChatInput from './ChatInput.svelte';
   import StreamingIndicator from './StreamingIndicator.svelte';
   import SuggestedPrompts from './SuggestedPrompts.svelte';
+  import TeamHuddle from './TeamHuddle.svelte';
   import { chatState } from '$lib/state/chat.svelte';
   import { phaseState } from '$lib/state/phase.svelte';
   import { projectState } from '$lib/state/project.svelte';
+  import { uiState } from '$lib/state/ui.svelte';
   import { sendMessage, loadMessages } from '$lib/services/claude';
   import { CONSULTANTS } from '$lib/constants/consultants';
 
@@ -38,6 +40,10 @@
 </script>
 
 <div class="chat-panel">
+  {#if uiState.huddleActive && uiState.huddleConsultantIds.length >= 2}
+    <TeamHuddle mode="indicator" />
+  {/if}
+
   {#if chatState.messages.length === 0 && !chatState.isStreaming}
     <SuggestedPrompts onselect={handleSend} />
   {:else}
@@ -51,7 +57,7 @@
   <ChatInput
     onsend={handleSend}
     disabled={chatState.isStreaming}
-    placeholder={`Ask ${consultant.name}...`}
+    placeholder={uiState.huddleActive ? 'Ask the huddle...' : `Ask ${consultant.name}...`}
   />
 </div>
 

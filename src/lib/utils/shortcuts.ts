@@ -13,6 +13,9 @@ export const SHORTCUTS: Shortcut[] = [
   { key: 'b', meta: true, action: 'toggle-sidebar' },
   { key: 'b', meta: true, shift: true, action: 'toggle-context' },
   { key: 'e', meta: true, action: 'export' },
+  { key: ']', meta: true, action: 'next-phase' },
+  { key: '[', meta: true, action: 'prev-phase' },
+  { key: 'h', meta: true, shift: true, action: 'team-huddle' },
 ];
 
 export function matchShortcut(event: KeyboardEvent): string | null {

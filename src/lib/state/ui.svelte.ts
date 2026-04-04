@@ -7,6 +7,8 @@ class UIState {
   splitRatio = $state(0.5);
   commandPaletteOpen = $state(false);
   settingsOpen = $state(false);
+  huddleActive = $state(false);
+  huddleConsultantIds = $state<string[]>([]);
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
@@ -18,6 +20,16 @@ class UIState {
 
   toggleCommandPalette() {
     this.commandPaletteOpen = !this.commandPaletteOpen;
+  }
+
+  startHuddle(consultantIds: string[]) {
+    this.huddleConsultantIds = consultantIds;
+    this.huddleActive = true;
+  }
+
+  endHuddle() {
+    this.huddleActive = false;
+    this.huddleConsultantIds = [];
   }
 
   setTheme(theme: Theme) {

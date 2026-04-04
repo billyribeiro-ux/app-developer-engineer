@@ -2,17 +2,31 @@
   import ArtifactList from './ArtifactList.svelte';
   import ArtifactViewer from './ArtifactViewer.svelte';
   import ArtifactEditor from './ArtifactEditor.svelte';
+  import ArtifactDiffView from './ArtifactDiffView.svelte';
   import { artifactState } from '$lib/state/artifact.svelte';
   import { phaseState } from '$lib/state/phase.svelte';
   import { deleteExistingArtifact } from '$lib/services/artifact-service';
 
   const phaseArtifacts = $derived(artifactState.getPhaseArtifacts(phaseState.currentPhaseNumber));
-  let editing = $state(false);
+  let mode = $state<'view' | 'edit' | 'diff'>('view');
+  let lastContent = $state('');
+
+  $effect(() => {
+    const sel = artifactState.selectedArtifact;
+    if (sel) {
+      if (lastContent && lastContent !== sel.content) {
+        // Content changed — keep lastContent for diff
+      } else {
+        lastContent = sel.content;
+      }
+    }
+    mode = 'view';
+  });
 
   async function handleDelete() {
     if (!artifactState.selectedArtifact) return;
     await deleteExistingArtifact(artifactState.selectedArtifact.id);
-    editing = false;
+    mode = 'view';
   }
 </script>
 
@@ -21,13 +35,16 @@
   {#if artifactState.selectedArtifact}
     <div class="artifact-toolbar">
       <div class="toolbar-tabs">
-        <button class="tab" class:active={!editing} onclick={() => editing = false}>View</button>
-        <button class="tab" class:active={editing} onclick={() => editing = true}>Edit</button>
+        <button class="tab" class:active={mode === 'view'} onclick={() => mode = 'view'}>View</button>
+        <button class="tab" class:active={mode === 'edit'} onclick={() => mode = 'edit'}>Edit</button>
+        <button class="tab" class:active={mode === 'diff'} onclick={() => mode = 'diff'}>Diff</button>
       </div>
       <button class="delete-btn" onclick={handleDelete} title="Delete artifact">🗑</button>
     </div>
-    {#if editing}
+    {#if mode === 'edit'}
       <ArtifactEditor artifact={artifactState.selectedArtifact} />
+    {:else if mode === 'diff'}
+      <ArtifactDiffView oldContent={lastContent} newContent={artifactState.selectedArtifact.content} />
     {:else}
       <ArtifactViewer artifact={artifactState.selectedArtifact} />
     {/if}

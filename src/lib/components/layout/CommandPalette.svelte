@@ -3,6 +3,7 @@
   import { uiState } from '$lib/state/ui.svelte';
   import { phaseState } from '$lib/state/phase.svelte';
   import { COMMANDS, type PaletteCommand } from '$lib/constants/commands';
+  import { exportAll } from '$lib/services/export-service';
   import type { PhaseNumber } from '$lib/types/project';
 
   let query = $state('');
@@ -42,6 +43,10 @@
       uiState.toggleSidebar();
     } else if (cmd.action === 'view:context') {
       uiState.toggleContextPanel();
+    } else if (cmd.action === 'ai:huddle') {
+      uiState.huddleActive = true;
+    } else if (cmd.action === 'project:export') {
+      exportAll();
     }
   }
 
