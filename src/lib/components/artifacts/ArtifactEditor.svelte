@@ -6,7 +6,6 @@
   let content = $state('');
   let saving = $state(false);
 
-  // Initialize and sync content when artifact changes (Svelte 5 best practice)
   $effect(() => {
     content = artifact.content;
   });

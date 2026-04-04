@@ -3,8 +3,8 @@
   let { title, children, onclose }: { title: string; children: Snippet; onclose: () => void } = $props();
 </script>
 
-<div class="overlay" onclick={onclose}>
-  <div class="modal" onclick={(e) => e.stopPropagation()}>
+<div class="overlay" role="dialog" aria-modal="true" aria-label={title} tabindex="-1" onclick={onclose} onkeydown={(e) => { if (e.key === 'Escape') onclose(); }}>
+  <div class="modal" role="presentation" onclick={(e) => e.stopPropagation()}>
     <div class="modal-header">
       <h2>{title}</h2>
       <button class="close-btn" onclick={onclose}>×</button>

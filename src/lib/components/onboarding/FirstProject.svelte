@@ -2,6 +2,11 @@
   let { oncreate }: { oncreate: (name: string, description: string) => void } = $props();
   let name = $state('');
   let description = $state('');
+  let nameInput = $state<HTMLInputElement>();
+
+  $effect(() => {
+    nameInput?.focus();
+  });
 </script>
 
 <div class="first-project">
@@ -11,7 +16,7 @@
 
     <div class="form-group">
       <label for="fp-name">Project Name</label>
-      <input id="fp-name" bind:value={name} placeholder="My Next Big Thing" autofocus />
+      <input id="fp-name" bind:value={name} bind:this={nameInput} placeholder="My Next Big Thing" />
     </div>
     <div class="form-group">
       <label for="fp-desc">What are you building? (optional)</label>

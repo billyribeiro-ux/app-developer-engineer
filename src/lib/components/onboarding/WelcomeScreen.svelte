@@ -23,7 +23,7 @@
   .logo-text {
     font-size: 56px; font-weight: 700; letter-spacing: -2px;
     background: linear-gradient(135deg, #6366f1, #818cf8, #a5b4fc);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
     margin-bottom: 8px;
   }
   .tagline { font-size: 18px; color: var(--text-secondary); margin-bottom: 24px; }

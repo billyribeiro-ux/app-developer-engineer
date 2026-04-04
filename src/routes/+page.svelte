@@ -19,6 +19,13 @@
 	let newName = $state('');
 	let newDescription = $state('');
 	let onboardingStep = $state<'loading' | 'welcome' | 'apikey' | 'firstproject' | 'done'>('loading');
+	let nameInputEl = $state<HTMLInputElement>();
+
+	$effect(() => {
+		if (showNewModal && nameInputEl) {
+			nameInputEl.focus();
+		}
+	});
 
 	onMount(async () => {
 		await loadProjects();
@@ -160,8 +167,8 @@
 					<input
 						id="project-name"
 						bind:value={newName}
+						bind:this={nameInputEl}
 						placeholder="My App"
-						autofocus
 						onkeydown={(e) => {
 							if (e.key === 'Enter') handleCreate();
 							if (e.key === 'Escape') showNewModal = false;

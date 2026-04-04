@@ -55,13 +55,12 @@
     <div class="chat-pane" style:flex={uiState.splitRatio}>
       <ChatPanel />
     </div>
-    <div
+    <button
       class="divider"
       class:active={dragging}
-      role="separator"
-      tabindex="0"
+      aria-label="Resize panels"
       onmousedown={startDrag}
-    ></div>
+    ></button>
     <div class="artifact-pane" style:flex={1 - uiState.splitRatio}>
       <ArtifactPanel />
     </div>

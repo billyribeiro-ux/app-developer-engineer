@@ -7,6 +7,13 @@
 
   let query = $state('');
   let selectedIndex = $state(0);
+  let inputEl = $state<HTMLInputElement>();
+
+  $effect(() => {
+    if (uiState.commandPaletteOpen && inputEl) {
+      inputEl.focus();
+    }
+  });
 
   const fuse = new Fuse(COMMANDS, {
     keys: ['title', 'description', 'section'],
@@ -55,14 +62,14 @@
 </script>
 
 {#if uiState.commandPaletteOpen}
-  <div class="palette-overlay" role="dialog" aria-modal="true" aria-label="Command Palette" tabindex="-1" onclick={() => { uiState.commandPaletteOpen = false; query = ''; }}>
+  <div class="palette-overlay" role="dialog" aria-modal="true" aria-label="Command Palette" tabindex="-1" onclick={() => { uiState.commandPaletteOpen = false; query = ''; }} onkeydown={(e) => { if (e.key === 'Escape') { uiState.commandPaletteOpen = false; query = ''; } }}>
     <div class="palette" role="presentation" onclick={(e) => e.stopPropagation()}>
       <input
         class="palette-input"
         bind:value={query}
+        bind:this={inputEl}
         placeholder="Search commands..."
         onkeydown={handleKeydown}
-        autofocus
       />
       <div class="palette-results">
         {#each results as command, i (command.id)}

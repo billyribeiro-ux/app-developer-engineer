@@ -1,19 +1,25 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-
   let { code }: { code: string } = $props();
   let container = $state<HTMLDivElement>();
   let error = $state('');
 
-  onMount(async () => {
-    try {
-      const mermaid = (await import('mermaid')).default;
-      mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-      const { svg } = await mermaid.render('mermaid-' + crypto.randomUUID().slice(0, 8), code);
-      if (container) container.innerHTML = svg;
-    } catch (e) {
-      error = String(e);
-    }
+  $effect(() => {
+    if (!container) return;
+    const el = container;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const mermaid = (await import('mermaid')).default;
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        const { svg } = await mermaid.render('mermaid-' + crypto.randomUUID().slice(0, 8), code);
+        if (!cancelled && el) el.innerHTML = svg;
+      } catch (e) {
+        if (!cancelled) error = String(e);
+      }
+    })();
+
+    return () => { cancelled = true; };
   });
 </script>
 
