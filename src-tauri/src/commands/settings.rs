@@ -1,4 +1,5 @@
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
+use tauri_plugin_store::StoreExt;
 
 #[tauri::command]
 pub fn get_api_key(app: AppHandle) -> Result<Option<String>, String> {

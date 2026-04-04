@@ -1,6 +1,7 @@
 use crate::db::DbState;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, State, Manager};
+use tauri::{AppHandle, Emitter, State};
+use tauri_plugin_store::StoreExt;
 use futures_util::StreamExt;
 
 #[derive(Debug, Deserialize)]
