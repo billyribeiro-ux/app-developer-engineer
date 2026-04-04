@@ -290,7 +290,7 @@
 		flex: 1;
 		overflow-y: auto;
 		align-content: start;
-		padding-bottom: 20px;
+		padding: 4px 4px 20px 4px;
 	}
 
 	.project-card {
