@@ -33,7 +33,7 @@
 		<button
 			class="icon-btn"
 			onclick={() => uiState.toggleContextPanel()}
-			title="Toggle Context Panel (⌘E)"
+			title="Toggle Context Panel (⌘⇧B)"
 			aria-pressed={uiState.contextPanelVisible}
 		>
 			⊞

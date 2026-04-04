@@ -55,8 +55,8 @@
 </script>
 
 {#if uiState.commandPaletteOpen}
-  <div class="palette-overlay" onclick={() => { uiState.commandPaletteOpen = false; query = ''; }}>
-    <div class="palette" onclick={(e) => e.stopPropagation()}>
+  <div class="palette-overlay" role="dialog" aria-modal="true" aria-label="Command Palette" tabindex="-1" onclick={() => { uiState.commandPaletteOpen = false; query = ''; }}>
+    <div class="palette" role="presentation" onclick={(e) => e.stopPropagation()}>
       <input
         class="palette-input"
         bind:value={query}

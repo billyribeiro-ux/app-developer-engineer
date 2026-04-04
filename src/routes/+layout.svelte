@@ -2,6 +2,9 @@
 	import '../app.css';
 	import { matchShortcut } from '$lib/utils/shortcuts';
 	import { uiState } from '$lib/state/ui.svelte';
+	import { goto } from '$app/navigation';
+	import SettingsModal from '$lib/components/settings/SettingsModal.svelte';
+	import CommandPalette from '$lib/components/layout/CommandPalette.svelte';
 
 	let { children } = $props();
 
@@ -23,6 +26,11 @@
 			case 'settings':
 				uiState.settingsOpen = true;
 				break;
+			case 'new-project':
+				goto('/');
+				break;
+			case 'export':
+				break;
 		}
 	}
 </script>
@@ -31,6 +39,8 @@
 
 <div class="app-root" data-theme={uiState.theme}>
 	{@render children()}
+	<SettingsModal />
+	<CommandPalette />
 </div>
 
 <style>

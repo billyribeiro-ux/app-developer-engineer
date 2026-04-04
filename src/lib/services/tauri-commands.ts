@@ -39,7 +39,7 @@ export async function updateProject(
     id,
     name: name ?? null,
     description: description ?? null,
-    current_phase: currentPhase ?? null
+    currentPhase: currentPhase ?? null
   });
 }
 
