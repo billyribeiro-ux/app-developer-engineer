@@ -8,16 +8,40 @@
 		deleteExistingProject,
 		selectProject
 	} from '$lib/services/project-service';
+	import { getApiKey } from '$lib/services/tauri-commands';
 	import { formatRelative } from '$lib/utils/date';
 	import { CONSULTANTS } from '$lib/constants/consultants';
+	import WelcomeScreen from '$lib/components/onboarding/WelcomeScreen.svelte';
+	import ApiKeySetup from '$lib/components/onboarding/ApiKeySetup.svelte';
+	import FirstProject from '$lib/components/onboarding/FirstProject.svelte';
 
 	let showNewModal = $state(false);
 	let newName = $state('');
 	let newDescription = $state('');
+	let onboardingStep = $state<'loading' | 'welcome' | 'apikey' | 'firstproject' | 'done'>('loading');
 
-	onMount(() => {
-		loadProjects();
+	onMount(async () => {
+		await loadProjects();
+		if (projectState.projects.length === 0) {
+			try {
+				const key = await getApiKey();
+				if (!key) {
+					onboardingStep = 'welcome';
+					return;
+				}
+			} catch {
+				onboardingStep = 'welcome';
+				return;
+			}
+		}
+		onboardingStep = 'done';
 	});
+
+	async function handleOnboardingCreate(name: string, description: string) {
+		const project = await createNewProject(name, description);
+		await selectProject(project.id);
+		goto(`/project/${project.id}`);
+	}
 
 	async function handleCreate() {
 		if (!newName.trim()) return;
@@ -48,6 +72,17 @@
 	}
 </script>
 
+{#if onboardingStep === 'loading'}
+	<div class="loading-fullscreen">
+		<div class="loading-spinner"></div>
+	</div>
+{:else if onboardingStep === 'welcome'}
+	<WelcomeScreen onnext={() => onboardingStep = 'apikey'} />
+{:else if onboardingStep === 'apikey'}
+	<ApiKeySetup onnext={() => onboardingStep = 'firstproject'} />
+{:else if onboardingStep === 'firstproject'}
+	<FirstProject oncreate={handleOnboardingCreate} />
+{:else}
 <div class="dashboard">
 	<header class="dashboard-header">
 		<div class="logo">
@@ -152,8 +187,16 @@
 		</div>
 	{/if}
 </div>
+{/if}
 
 <style>
+	.loading-fullscreen {
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--bg-primary);
+	}
 	.dashboard {
 		height: 100vh;
 		display: flex;

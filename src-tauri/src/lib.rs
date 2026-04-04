@@ -2,7 +2,7 @@ mod commands;
 mod db;
 mod claude;
 
-use commands::{projects, artifacts, claude as claude_cmd, settings};
+use commands::{projects, artifacts, claude as claude_cmd, settings, memories, search};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -35,6 +35,10 @@ pub fn run() {
             claude_cmd::get_messages,
             settings::get_api_key,
             settings::set_api_key,
+            memories::save_memory,
+            memories::get_memories,
+            memories::delete_memory,
+            search::search_all,
         ])
         .run(tauri::generate_context!())
         .expect("error while running CATALYST");

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   let { code }: { code: string } = $props();
-  let container: HTMLDivElement;
+  let container = $state<HTMLDivElement>();
   let error = $state('');
 
   onMount(async () => {

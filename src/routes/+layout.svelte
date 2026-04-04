@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import SettingsModal from '$lib/components/settings/SettingsModal.svelte';
 	import CommandPalette from '$lib/components/layout/CommandPalette.svelte';
+	import ToastContainer from '$lib/components/shared/ToastContainer.svelte';
 
 	let { children } = $props();
 
@@ -41,6 +42,7 @@
 	{@render children()}
 	<SettingsModal />
 	<CommandPalette />
+	<ToastContainer />
 </div>
 
 <style>

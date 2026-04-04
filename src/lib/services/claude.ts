@@ -1,4 +1,5 @@
 import { streamClaude, saveMessage, getMessages, type ClaudeRequestPayload, type MessageRow } from './tauri-commands';
+import { toastState } from '$lib/state/toast.svelte';
 import { buildSystemPrompt, buildMessages } from '$lib/prompts/context-builder';
 import { chatState } from '$lib/state/chat.svelte';
 import { artifactState } from '$lib/state/artifact.svelte';
@@ -89,6 +90,7 @@ export async function sendMessage(
     (error) => {
       chatState.finishStreaming();
       console.error('Claude streaming error:', error);
+      toastState.error(String(error));
     }
   );
 }

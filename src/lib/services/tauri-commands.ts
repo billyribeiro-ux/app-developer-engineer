@@ -174,3 +174,32 @@ export async function getApiKey(): Promise<string | null> {
 export async function setApiKey(key: string): Promise<void> {
   return invoke('set_api_key', { key });
 }
+
+// Memory commands
+export interface MemoryInput {
+  consultant_id: string;
+  project_id: string;
+  key: string;
+  value: string;
+}
+
+export interface MemoryRow {
+  id: string;
+  consultant_id: string;
+  project_id: string;
+  key: string;
+  value: string;
+  created_at: string;
+}
+
+export async function saveMemory(input: MemoryInput): Promise<MemoryRow> {
+  return invoke('save_memory', { input });
+}
+
+export async function getMemories(consultantId: string, projectId: string): Promise<MemoryRow[]> {
+  return invoke('get_memories', { consultantId, projectId });
+}
+
+export async function deleteMemory(id: string): Promise<void> {
+  return invoke('delete_memory', { id });
+}

@@ -7,6 +7,7 @@ import {
   type ProjectRow
 } from './tauri-commands';
 import { projectState } from '$lib/state/project.svelte';
+import { toastState } from '$lib/state/toast.svelte';
 import { artifactState } from '$lib/state/artifact.svelte';
 import { phaseState } from '$lib/state/phase.svelte';
 import type { Project, PhaseNumber } from '$lib/types/project';
@@ -28,26 +29,40 @@ export async function loadProjects(): Promise<void> {
   try {
     const rows = await getProjectsCmd();
     projectState.setProjects(rows.map(rowToProject));
+  } catch (e) {
+    toastState.error('Failed to load projects: ' + String(e));
   } finally {
     projectState.loading = false;
   }
 }
 
 export async function createNewProject(name: string, description: string): Promise<Project> {
-  const row = await createProjectCmd({ name, description });
-  const project = rowToProject(row);
-  projectState.addProject(project);
-  return project;
+  try {
+    const row = await createProjectCmd({ name, description });
+    const project = rowToProject(row);
+    projectState.addProject(project);
+    toastState.success(`Project "${name}" created`);
+    return project;
+  } catch (e) {
+    toastState.error('Failed to create project: ' + String(e));
+    throw e;
+  }
 }
 
 export async function deleteExistingProject(id: string): Promise<void> {
-  await deleteProjectCmd(id);
-  projectState.removeProject(id);
+  try {
+    await deleteProjectCmd(id);
+    projectState.removeProject(id);
+    toastState.success('Project deleted');
+  } catch (e) {
+    toastState.error('Failed to delete project: ' + String(e));
+    throw e;
+  }
 }
 
 export async function selectProject(id: string): Promise<void> {
+  try {
   projectState.setCurrent(id);
-  // Load artifacts for this project
   const artifactRows = await getArtifactsCmd(id);
   const artifacts: Artifact[] = artifactRows.map((r) => ({
     id: r.id,
@@ -63,4 +78,8 @@ export async function selectProject(id: string): Promise<void> {
   }));
   artifactState.setArtifacts(artifacts);
   phaseState.setCurrentPhase(1);
+  } catch (e) {
+    toastState.error('Failed to load project: ' + String(e));
+    throw e;
+  }
 }

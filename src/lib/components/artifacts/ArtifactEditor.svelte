@@ -3,8 +3,13 @@
   import { updateExistingArtifact } from '$lib/services/artifact-service';
 
   let { artifact }: { artifact: Artifact } = $props();
-  let content = $state(artifact.content);
+  let content = $state('');
   let saving = $state(false);
+
+  // Initialize and sync content when artifact changes (Svelte 5 best practice)
+  $effect(() => {
+    content = artifact.content;
+  });
 
   async function handleSave() {
     saving = true;

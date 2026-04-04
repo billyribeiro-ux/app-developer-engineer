@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getApiKey, setApiKey } from '$lib/services/tauri-commands';
+  import { toastState } from '$lib/state/toast.svelte';
 
   let key = $state('');
   let masked = $state(true);
@@ -28,6 +29,7 @@
       setTimeout(() => { saved = false; }, 2000);
     } catch (e) {
       console.error('Failed to save API key:', e);
+      toastState.error('Failed to save API key: ' + String(e));
     }
   }
 </script>

@@ -32,6 +32,7 @@
 		"bits-ui": "^2.16.5",
 		"fuse.js": "^7.2.0",
 		"marked": "^17.0.5",
+		"mermaid": "^11.14.0",
 		"phosphor-icons-svelte": "^2.1.0",
 		"shiki": "^4.0.2"
 	}
