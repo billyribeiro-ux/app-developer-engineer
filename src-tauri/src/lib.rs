@@ -31,6 +31,7 @@ pub fn run() {
             artifacts::update_artifact,
             artifacts::delete_artifact,
             claude_cmd::stream_claude,
+            claude_cmd::validate_api_key,
             claude_cmd::save_message,
             claude_cmd::get_messages,
             settings::get_api_key,

@@ -175,6 +175,10 @@ export async function setApiKey(key: string): Promise<void> {
   return invoke('set_api_key', { key });
 }
 
+export async function validateApiKey(key: string): Promise<string> {
+  return invoke('validate_api_key', { key });
+}
+
 // Memory commands
 export interface MemoryInput {
   consultant_id: string;

@@ -56,6 +56,20 @@ pub async fn stream_claude(app: AppHandle, request: ClaudeRequest) -> Result<(),
     if !response.status().is_success() {
         let status = response.status();
         let text = response.text().await.unwrap_or_default();
+
+        // Parse the Anthropic error for a user-friendly message
+        if let Ok(err_json) = serde_json::from_str::<serde_json::Value>(&text) {
+            if let Some(msg) = err_json["error"]["message"].as_str() {
+                if msg.contains("credit balance is too low") {
+                    return Err("Your Anthropic API credit balance is empty. Please add credits at console.anthropic.com/settings/billing".to_string());
+                }
+                if msg.contains("invalid x-api-key") || msg.contains("Invalid API Key") {
+                    return Err("Invalid API key. Please check your key in Settings (⌘,).".to_string());
+                }
+                return Err(format!("Claude API error: {}", msg));
+            }
+        }
+
         return Err(format!("Claude API error {}: {}", status, text));
     }
 
@@ -94,6 +108,44 @@ pub async fn stream_claude(app: AppHandle, request: ClaudeRequest) -> Result<(),
 
     let _ = app.emit("claude:done", accumulated);
     Ok(())
+}
+
+#[tauri::command]
+pub async fn validate_api_key(key: String) -> Result<String, String> {
+    let client = reqwest::Client::new();
+    let body = serde_json::json!({
+        "model": "claude-sonnet-4-20250514",
+        "max_tokens": 1,
+        "messages": [{ "role": "user", "content": "hi" }]
+    });
+
+    let response = client
+        .post("https://api.anthropic.com/v1/messages")
+        .header("x-api-key", &key)
+        .header("anthropic-version", "2023-06-01")
+        .header("content-type", "application/json")
+        .body(body.to_string())
+        .send()
+        .await
+        .map_err(|e| format!("Connection failed: {}", e))?;
+
+    if response.status().is_success() || response.status().as_u16() == 200 {
+        return Ok("API key is valid and account has credits.".to_string());
+    }
+
+    let text = response.text().await.unwrap_or_default();
+    if let Ok(err_json) = serde_json::from_str::<serde_json::Value>(&text) {
+        if let Some(msg) = err_json["error"]["message"].as_str() {
+            if msg.contains("credit balance is too low") {
+                return Err("API key is valid but your account has no credits. Add credits at console.anthropic.com/settings/billing".to_string());
+            }
+            if msg.contains("invalid x-api-key") || msg.contains("Invalid API Key") {
+                return Err("Invalid API key. Double-check you copied the full key starting with sk-ant-...".to_string());
+            }
+            return Err(msg.to_string());
+        }
+    }
+    Err(format!("Unexpected error: {}", text))
 }
 
 #[derive(Debug, Serialize, Deserialize)]

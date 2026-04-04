@@ -1,12 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getApiKey, setApiKey } from '$lib/services/tauri-commands';
+  import { getApiKey, setApiKey, validateApiKey } from '$lib/services/tauri-commands';
   import { toastState } from '$lib/state/toast.svelte';
 
   let key = $state('');
   let masked = $state(true);
-  let saved = $state(false);
+  let saving = $state(false);
   let hasKey = $state(false);
+  let statusMsg = $state('');
+  let statusType = $state<'success' | 'warning' | 'error'>('warning');
 
   onMount(async () => {
     try {
@@ -14,22 +16,50 @@
       if (existing) {
         hasKey = true;
         key = existing;
+        statusMsg = 'API key configured';
+        statusType = 'success';
+      } else {
+        statusMsg = 'No API key — set one above or use ANTHROPIC_API_KEY env var';
+        statusType = 'warning';
       }
     } catch {
-      // No key set yet
+      statusMsg = 'No API key — set one above or use ANTHROPIC_API_KEY env var';
+      statusType = 'warning';
     }
   });
 
   async function handleSave() {
-    if (!key.trim()) return;
+    if (!key.trim() || saving) return;
+    saving = true;
+    statusMsg = 'Saving and validating...';
+    statusType = 'warning';
+
     try {
       await setApiKey(key.trim());
-      saved = true;
       hasKey = true;
-      setTimeout(() => { saved = false; }, 2000);
+
+      // Validate the key against the Anthropic API
+      const result = await validateApiKey(key.trim());
+      statusMsg = result;
+      statusType = 'success';
+      toastState.success('API key saved and validated!');
     } catch (e) {
-      console.error('Failed to save API key:', e);
-      toastState.error('Failed to save API key: ' + String(e));
+      const errMsg = String(e);
+      statusMsg = errMsg;
+      // Key might be saved but invalid/no credits
+      if (errMsg.includes('credit') || errMsg.includes('balance')) {
+        statusType = 'error';
+        toastState.error(errMsg);
+      } else if (errMsg.includes('Invalid')) {
+        statusType = 'error';
+        hasKey = false;
+        toastState.error(errMsg);
+      } else {
+        statusType = 'error';
+        toastState.error('Failed to validate API key: ' + errMsg);
+      }
+    } finally {
+      saving = false;
     }
   }
 </script>
@@ -44,15 +74,11 @@
     <button class="toggle-btn" onclick={() => masked = !masked}>
       {masked ? 'Show' : 'Hide'}
     </button>
-    <button class="save-btn" onclick={handleSave} disabled={!key.trim()}>
-      {saved ? 'Saved!' : 'Save'}
+    <button class="save-btn" onclick={handleSave} disabled={!key.trim() || saving}>
+      {saving ? 'Validating...' : 'Save & Test'}
     </button>
   </div>
-  {#if hasKey}
-    <span class="status success">API key configured</span>
-  {:else}
-    <span class="status warning">No API key — set one above or use ANTHROPIC_API_KEY env var</span>
-  {/if}
+  <span class="status {statusType}">{statusMsg}</span>
 </div>
 
 <style>
@@ -65,4 +91,5 @@
   .status { font-size: 11px; }
   .success { color: var(--success); }
   .warning { color: var(--warning); }
+  .error { color: var(--error); }
 </style>
