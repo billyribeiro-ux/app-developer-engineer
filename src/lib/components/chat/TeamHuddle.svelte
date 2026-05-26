@@ -18,10 +18,9 @@
 
   let messages = $state<HuddleMessage[]>([]);
   let input = $state('');
-  let selectedConsultant = $state<string>('');
+  let selectedConsultantId = $state<string | null>(null);
   let streaming = $state(false);
   let streamContent = $state('');
-  let messagesEl = $state<HTMLDivElement | null>(null);
 
   // All consultants as an array
   const allConsultants = $derived(Object.values(CONSULTANTS));
@@ -33,6 +32,12 @@
       .filter((c): c is (typeof allConsultants)[number] => Boolean(c))
   );
 
+  // Resolved selected consultant — auto-falls back to first active if selection
+  // is absent or no longer in the huddle
+  const selectedConsultant = $derived(
+    activeConsultants.find((c) => c.id === selectedConsultantId) ?? activeConsultants[0] ?? null
+  );
+
   // Whether we should render the chat UI (third mode)
   const huddleChatActive = $derived(
     uiState.huddleActive &&
@@ -40,21 +45,21 @@
       mode !== 'picker'
   );
 
-  // Default to first active consultant when huddle starts
-  $effect(() => {
-    if (activeConsultants.length > 0 && !selectedConsultant) {
-      selectedConsultant = activeConsultants[0].id;
+  // ── Auto-scroll attachment ───────────────────────────────────────────────────
+  function scrollToBottom(node: HTMLElement) {
+    function scroll() {
+      node.scrollTop = node.scrollHeight;
     }
-  });
-
-  // Auto-scroll messages list to bottom on new message / stream update
-  $effect(() => {
-    void messages;
-    void streamContent;
-    if (messagesEl) {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-  });
+    scroll();
+    // Re-scroll whenever child content changes (new messages or streaming text)
+    const observer = new MutationObserver(scroll);
+    observer.observe(node, { childList: true, subtree: true, characterData: true });
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
 
   // ── Picker state ─────────────────────────────────────────────────────────────
   let selected = $state<string[]>([]);
@@ -74,7 +79,7 @@
 
   // ── Chat actions ─────────────────────────────────────────────────────────────
   async function sendMessage() {
-    if (!input.trim() || streaming) return;
+    if (!input.trim() || streaming || !selectedConsultant) return;
 
     const userMsg = input.trim();
     input = '';
@@ -89,8 +94,7 @@
       }
     ];
 
-    const consultant = allConsultants.find((c) => c.id === selectedConsultant);
-    if (!consultant) return;
+    const consultant = selectedConsultant;
 
     const otherPhases = activeConsultants
       .filter((c) => c.id !== consultant.id)
@@ -151,7 +155,7 @@
     uiState.endHuddle();
     messages = [];
     input = '';
-    selectedConsultant = '';
+    selectedConsultantId = null;
     selected = [];
   }
 
@@ -236,9 +240,9 @@
       {#each activeConsultants as c (c.id)}
         <button
           class="selector-btn"
-          class:active={selectedConsultant === c.id}
+          class:active={selectedConsultant?.id === c.id}
           style:--accent={c.accentColor}
-          onclick={() => { selectedConsultant = c.id; }}
+          onclick={() => { selectedConsultantId = c.id; }}
           title={c.title}
         >
           <span class="selector-avatar">{c.name.charAt(0)}</span>
@@ -248,7 +252,7 @@
     </div>
 
     <!-- Message list -->
-    <div class="messages" bind:this={messagesEl}>
+    <div class="messages" use:scrollToBottom>
       {#if messages.length === 0}
         <div class="empty-state">
           <p>Your huddle is ready. Ask a question to get multiple expert perspectives.</p>
@@ -259,6 +263,7 @@
         {#if msg.role === 'user'}
           <div class="message user-message">
             <div class="message-bubble user-bubble">
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html renderMarkdown(msg.content)}
             </div>
           </div>
@@ -277,6 +282,7 @@
               </span>
             </div>
             <div class="message-bubble assistant-bubble">
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html renderMarkdown(msg.content)}
             </div>
           </div>
@@ -284,24 +290,24 @@
       {/each}
 
       <!-- Streaming indicator -->
-      {#if streaming}
-        {@const streamingConsultant = allConsultants.find((c) => c.id === selectedConsultant)}
+      {#if streaming && selectedConsultant}
         <div
           class="message assistant-message"
-          style:--consultant-accent={streamingConsultant?.accentColor ?? 'var(--accent-primary)'}
+          style:--consultant-accent={selectedConsultant.accentColor}
         >
           <div class="consultant-label">
             <span
               class="inline-avatar"
-              style:background={streamingConsultant?.accentColor ?? 'var(--accent-primary)'}
-            >{streamingConsultant?.name.charAt(0) ?? '?'}</span>
+              style:background={selectedConsultant.accentColor}
+            >{selectedConsultant.name.charAt(0)}</span>
             <span
               class="consultant-name"
-              style:color={streamingConsultant?.accentColor ?? 'var(--accent-primary)'}
-            >{streamingConsultant?.name ?? 'Consultant'}</span>
+              style:color={selectedConsultant.accentColor}
+            >{selectedConsultant.name}</span>
           </div>
           <div class="message-bubble assistant-bubble">
             {#if streamContent}
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html renderMarkdown(streamContent)}
             {:else}
               <span class="typing-indicator">
@@ -553,7 +559,8 @@
   .huddle-chat {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     background: var(--bg-primary);
     overflow: hidden;
   }
@@ -645,6 +652,7 @@
     flex-direction: column;
     gap: 12px;
     scroll-behavior: smooth;
+    min-height: 0;
   }
 
   .empty-state {

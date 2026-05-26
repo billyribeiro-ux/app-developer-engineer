@@ -41,24 +41,25 @@
 
 <div class="chat-panel">
   {#if uiState.huddleActive && uiState.huddleConsultantIds.length >= 2}
-    <TeamHuddle mode="indicator" />
-  {/if}
-
-  {#if chatState.messages.length === 0 && !chatState.isStreaming}
-    <SuggestedPrompts onselect={handleSend} />
+    <!-- Huddle chat mode takes over the full panel -->
+    <TeamHuddle />
   {:else}
-    <MessageList />
-  {/if}
+    {#if chatState.messages.length === 0 && !chatState.isStreaming}
+      <SuggestedPrompts onselect={handleSend} />
+    {:else}
+      <MessageList />
+    {/if}
 
-  {#if chatState.isStreaming}
-    <StreamingIndicator content={chatState.currentStreamContent} />
-  {/if}
+    {#if chatState.isStreaming}
+      <StreamingIndicator content={chatState.currentStreamContent} />
+    {/if}
 
-  <ChatInput
-    onsend={handleSend}
-    disabled={chatState.isStreaming}
-    placeholder={uiState.huddleActive ? 'Ask the huddle...' : `Ask ${consultant.name}...`}
-  />
+    <ChatInput
+      onsend={handleSend}
+      disabled={chatState.isStreaming}
+      placeholder={`Ask ${consultant.name}...`}
+    />
+  {/if}
 </div>
 
 <style>
