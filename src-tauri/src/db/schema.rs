@@ -45,6 +45,11 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
             value TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
+
+        CREATE INDEX IF NOT EXISTS idx_projects_name ON projects(name);
+        CREATE INDEX IF NOT EXISTS idx_artifacts_title ON artifacts(title);
+        CREATE INDEX IF NOT EXISTS idx_artifacts_project ON artifacts(project_id);
+        CREATE INDEX IF NOT EXISTS idx_messages_project_phase ON messages(project_id, phase_number);
     ")?;
     Ok(())
 }
