@@ -4,7 +4,6 @@
 	import { uiState } from '$lib/state/ui.svelte';
 	import { phaseState } from '$lib/state/phase.svelte';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { exportAll } from '$lib/services/export-service';
 	import SettingsModal from '$lib/components/settings/SettingsModal.svelte';
 	import CommandPalette from '$lib/components/layout/CommandPalette.svelte';
@@ -32,7 +31,7 @@
 				uiState.settingsOpen = true;
 				break;
 			case 'new-project':
-				goto(resolve('/'));
+				goto('/');
 				break;
 			case 'export':
 				exportAll();

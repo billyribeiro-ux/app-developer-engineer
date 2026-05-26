@@ -46,7 +46,7 @@
 	async function handleOnboardingCreate(name: string, description: string) {
 		const project = await createNewProject(name, description);
 		await selectProject(project.id);
-		goto(resolve(`/project/${project.id}`));
+		goto(resolve('/project/[id]', { id: project.id }));
 	}
 
 	async function handleCreate() {
@@ -56,12 +56,12 @@
 		newName = '';
 		newDescription = '';
 		await selectProject(project.id);
-		goto(resolve(`/project/${project.id}`));
+		goto(resolve('/project/[id]', { id: project.id }));
 	}
 
 	async function handleOpen(id: string) {
 		await selectProject(id);
-		goto(resolve(`/project/${id}`));
+		goto(resolve('/project/[id]', { id }));
 	}
 
 	async function handleDelete(id: string) {

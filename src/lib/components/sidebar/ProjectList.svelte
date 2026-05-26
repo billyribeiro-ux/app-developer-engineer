@@ -7,7 +7,7 @@
 
   async function handleSelect(id: string) {
     await selectProject(id);
-    goto(resolve(`/project/${id}`));
+    goto(resolve('/project/[id]', { id }));
   }
 </script>
 
