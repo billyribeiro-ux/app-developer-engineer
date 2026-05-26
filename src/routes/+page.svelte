@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projectState } from '$lib/state/project.svelte';
 	import {
 		loadProjects,
@@ -21,11 +22,9 @@
 	let onboardingStep = $state<'loading' | 'welcome' | 'apikey' | 'firstproject' | 'done'>('loading');
 	let nameInputEl = $state<HTMLInputElement>();
 
-	$effect(() => {
-		if (showNewModal && nameInputEl) {
-			nameInputEl.focus();
-		}
-	});
+	function focusInput(node: HTMLInputElement) {
+		node.focus();
+	}
 
 	onMount(async () => {
 		await loadProjects();
@@ -47,7 +46,7 @@
 	async function handleOnboardingCreate(name: string, description: string) {
 		const project = await createNewProject(name, description);
 		await selectProject(project.id);
-		goto(`/project/${project.id}`);
+		goto(resolve(`/project/${project.id}`));
 	}
 
 	async function handleCreate() {
@@ -57,12 +56,12 @@
 		newName = '';
 		newDescription = '';
 		await selectProject(project.id);
-		goto(`/project/${project.id}`);
+		goto(resolve(`/project/${project.id}`));
 	}
 
 	async function handleOpen(id: string) {
 		await selectProject(id);
-		goto(`/project/${id}`);
+		goto(resolve(`/project/${id}`));
 	}
 
 	async function handleDelete(id: string) {
@@ -167,7 +166,7 @@
 					<input
 						id="project-name"
 						bind:value={newName}
-						bind:this={nameInputEl}
+						use:focusInput
 						placeholder="My App"
 						onkeydown={(e) => {
 							if (e.key === 'Enter') handleCreate();

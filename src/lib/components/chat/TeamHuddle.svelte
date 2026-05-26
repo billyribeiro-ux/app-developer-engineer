@@ -34,7 +34,7 @@
       <h3>Start a Team Huddle</h3>
       <p class="picker-hint">Select 2+ consultants for a multi-perspective discussion</p>
       <div class="consultant-grid">
-        {#each allConsultants as c}
+        {#each allConsultants as c (c.id)}
           <button
             class="consultant-option"
             class:selected={selected.includes(c.id)}
@@ -62,7 +62,7 @@
     <div class="huddle-left">
       <span class="huddle-badge">HUDDLE</span>
       <div class="huddle-avatars">
-        {#each activeConsultants as c}
+        {#each activeConsultants as c (c?.id)}
           {#if c}
             <div class="mini-avatar" style:--accent={c.accentColor} title={c.name}>{c.name.charAt(0)}</div>
           {/if}

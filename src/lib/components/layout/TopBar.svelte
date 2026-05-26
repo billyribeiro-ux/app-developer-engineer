@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { projectState } from '$lib/state/project.svelte';
 	import { phaseState } from '$lib/state/phase.svelte';
 	import { uiState } from '$lib/state/ui.svelte';
@@ -10,7 +11,7 @@
 
 <header class="top-bar">
 	<div class="left">
-		<button class="back-btn" onclick={() => goto('/')}>
+		<button class="back-btn" onclick={() => goto(resolve('/'))}>
 			← Projects
 		</button>
 		<span class="divider">/</span>

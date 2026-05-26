@@ -67,7 +67,7 @@
   </div>
   <p class="prompts-subtitle">{consultant.personality}</p>
   <div class="prompts-grid">
-    {#each prompts as prompt}
+    {#each prompts as prompt, i (i)}
       <button class="prompt-card" onclick={() => onselect(prompt)}>
         {prompt}
       </button>

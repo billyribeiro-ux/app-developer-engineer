@@ -5,7 +5,6 @@
 </script>
 
 {#if uiState.settingsOpen}
-  <!-- svelte-ignore a11y_autofocus -->
   <div class="overlay" role="dialog" aria-modal="true" aria-label="Settings" tabindex="-1" onclick={() => uiState.settingsOpen = false} onkeydown={(e) => { if (e.key === 'Escape') uiState.settingsOpen = false; }}>
     <div class="modal" role="presentation" onclick={(e) => e.stopPropagation()}>
       <div class="modal-header">

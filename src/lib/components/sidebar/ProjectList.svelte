@@ -1,12 +1,13 @@
 <script lang="ts">
   import { projectState } from '$lib/state/project.svelte';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { selectProject } from '$lib/services/project-service';
   import { formatRelative } from '$lib/utils/date';
 
   async function handleSelect(id: string) {
     await selectProject(id);
-    goto(`/project/${id}`);
+    goto(resolve(`/project/${id}`));
   }
 </script>
 
@@ -14,7 +15,7 @@
   <div class="list-header">
     <span class="list-title">Projects</span>
   </div>
-  {#each projectState.projects as project}
+  {#each projectState.projects as project (project.id)}
     <button class="project-item" onclick={() => handleSelect(project.id)}>
       <span class="project-name">{project.name}</span>
       <span class="project-date">{formatRelative(project.updatedAt)}</span>

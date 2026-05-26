@@ -28,7 +28,7 @@
   <div class="timeline-header">
     <span class="timeline-title">Phases</span>
   </div>
-  {#each [1, 2, 3, 4, 5, 6, 7] as phase}
+  {#each [1, 2, 3, 4, 5, 6, 7] as phase (phase)}
     {@const consultant = CONSULTANTS[phase as PhaseNumber]}
     {@const active = phase === phaseState.currentPhaseNumber}
     {@const unlocked = isUnlocked(phase as PhaseNumber)}

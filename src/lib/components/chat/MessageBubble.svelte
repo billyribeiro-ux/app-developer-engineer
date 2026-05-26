@@ -59,7 +59,7 @@
       <div class="markdown-content" bind:this={contentEl}>{@html html}</div>
       {#if parsedArtifacts.length > 0}
         <div class="artifact-actions">
-          {#each parsedArtifacts as artifact, i}
+          {#each parsedArtifacts as artifact, i (i)}
             <button class="save-artifact-btn" onclick={() => handleSaveArtifact(i)}>
               Save as Artifact: {artifact.title}
             </button>

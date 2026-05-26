@@ -36,7 +36,7 @@
     </div>
     {#if health.suggestions.length > 0}
       <div class="health-suggestions">
-        {#each health.suggestions as s}
+        {#each health.suggestions as s, i (i)}
           <p class="suggestion">{s}</p>
         {/each}
       </div>
